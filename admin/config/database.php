@@ -106,13 +106,16 @@ class Database {
             'logo_banner_1' => 'imgelementos/semlogo.png',
             'logo_banner_2' => 'imgelementos/semlogo.png',
             'logo_banner_3' => 'imgelementos/semlogo.png',
+            'logo_banner_4' => 'imgelementos/semlogo.png',
             'logo_movie_banner' => 'imgelementos/semlogo.png', // Nova entrada para logos de filmes/séries
             'background_banner_1' => 'wtec/Img/background_banner_1.png',
             'background_banner_2' => 'wtec/Img/background_banner_2.jpg',
             'background_banner_3' => 'wtec/Img/background_banner_3.png',
+            'background_banner_4' => 'wtec/Img/background_banner_3.png', // Usando o mesmo fundo do tema 3 como padrão
             'card_banner_1' => 'wtec/card/card_banner_1.png',
             'card_banner_2' => 'wtec/card/card_banner_2.png',
-            'card_banner_3' => 'wtec/card/card_banner_3.png'
+            'card_banner_3' => 'wtec/card/card_banner_3.png',
+            'card_banner_4' => 'imgelementos/fundo_jogo.png' // Usando o fundo_jogo como padrão
         ];
         
         // Buscar usuários que não têm imagens configuradas
@@ -151,6 +154,32 @@ class Database {
                 VALUES (?, 'logo_movie_banner', 'imgelementos/semlogo.png', 'default')
             ");
             $stmt->execute([$user['id']]);
+        }
+        
+        // Adicionar novas imagens do tema 4 para usuários existentes
+        $newImages = [
+            'logo_banner_4' => 'imgelementos/semlogo.png',
+            'background_banner_4' => 'wtec/Img/background_banner_3.png',
+            'card_banner_4' => 'imgelementos/fundo_jogo.png'
+        ];
+        
+        foreach ($newImages as $imageKey => $imagePath) {
+            $stmt = $this->connection->prepare("
+                SELECT u.id 
+                FROM usuarios u 
+                LEFT JOIN user_images ui ON u.id = ui.user_id AND ui.image_key = ?
+                WHERE ui.user_id IS NULL
+            ");
+            $stmt->execute([$imageKey]);
+            $usersWithoutImage = $stmt->fetchAll();
+            
+            foreach ($usersWithoutImage as $user) {
+                $stmt = $this->connection->prepare("
+                    INSERT IGNORE INTO user_images (user_id, image_key, image_path, upload_type) 
+                    VALUES (?, ?, ?, 'default')
+                ");
+                $stmt->execute([$user['id'], $imageKey, $imagePath]);
+            }
         }
     }
 }

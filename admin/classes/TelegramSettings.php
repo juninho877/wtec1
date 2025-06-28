@@ -16,7 +16,7 @@ class TelegramSettings {
      * @param string $footballMessage Mensagem personalizada para banners de futebol
      * @param string $movieSeriesMessage Mensagem personalizada para banners de filmes/séries
      * @param string $scheduledTime Horário agendado para envio automático (formato HH:MM)
-     * @param int $scheduledFootballTheme Tema de futebol para envio agendado (1, 2 ou 3)
+     * @param int $scheduledFootballTheme Tema de futebol para envio agendado (1, 2, 3 ou 4)
      * @param bool $scheduledDeliveryEnabled Flag para habilitar/desabilitar envio agendado
      * @return array Resultado da operação
      */
@@ -43,7 +43,7 @@ class TelegramSettings {
             }
             
             // Validar tema de futebol
-            if (!in_array($scheduledFootballTheme, [1, 2, 3])) {
+            if (!in_array($scheduledFootballTheme, [1, 2, 3, 4])) {
                 $scheduledFootballTheme = 1; // Valor padrão se inválido
             }
             

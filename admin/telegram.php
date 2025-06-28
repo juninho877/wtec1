@@ -226,6 +226,9 @@ include "includes/header.php";
                                     <option value="3" <?php echo (!empty($currentSettings) && isset($currentSettings['scheduled_football_theme']) && $currentSettings['scheduled_football_theme'] == 3) ? 'selected' : ''; ?>>
                                         Tema 3 (Premium)
                                     </option>
+                                    <option value="4" <?php echo (!empty($currentSettings) && isset($currentSettings['scheduled_football_theme']) && $currentSettings['scheduled_football_theme'] == 4) ? 'selected' : ''; ?>>
+                                        Tema 4 (Agenda Esportiva)
+                                    </option>
                                 </select>
                                 <p class="text-xs text-muted mt-1">
                                     Escolha o estilo de banner que será enviado automaticamente
@@ -283,7 +286,7 @@ include "includes/header.php";
                 </p>
             </div>
             <div class="card-body">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="manual-send-card">
                         <div class="manual-send-icon">
                             <i class="fas fa-futbol"></i>
@@ -315,6 +318,18 @@ include "includes/header.php";
                         <h4 class="manual-send-title">Tema 3 (Premium)</h4>
                         <p class="manual-send-desc">Banner premium com design especial</p>
                         <button type="button" class="btn btn-primary w-full mt-3 send-football-btn" data-theme="football_3">
+                            <i class="fas fa-paper-plane"></i>
+                            Enviar Agora
+                        </button>
+                    </div>
+                    
+                    <div class="manual-send-card">
+                        <div class="manual-send-icon">
+                            <i class="fas fa-futbol"></i>
+                        </div>
+                        <h4 class="manual-send-title">Tema 4 (Agenda)</h4>
+                        <p class="manual-send-desc">Banner com layout de agenda esportiva</p>
+                        <button type="button" class="btn btn-primary w-full mt-3 send-football-btn" data-theme="football_4">
                             <i class="fas fa-paper-plane"></i>
                             Enviar Agora
                         </button>

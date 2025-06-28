@@ -294,9 +294,60 @@ function obterJogosDeHoje() {
 }
 
 /**
+ * Processa os canais de transmissão para exibição no banner
+ * @param array $lista Lista de canais
+ * @return string String formatada com os canais
+ */
+function tratarCanaisTransmissao($lista) {
+    if (!is_array($lista)) return '';
+
+    $canais = [];
+    foreach ($lista as $canal) {
+        $nome = strtoupper($canal['nome'] ?? '');
+        if (strpos($nome, 'YOUTUBE(') === 0) {
+            $canais[] = 'YOUTUBE';
+        } else {
+            $canais[] = $canal['nome'];
+        }
+    }
+
+    // Remover duplicados
+    $canais = array_unique($canais);
+
+    // Retornar apenas os 3 primeiros
+    return implode(', ', array_slice($canais, 0, 3));
+}
+
+/**
+ * Carrega uma imagem PNG local e a redimensiona
+ * @param string $path Caminho para a imagem
+ * @param int $width Largura desejada
+ * @param int $height Altura desejada
+ * @return resource Imagem redimensionada
+ */
+function carregarImagem($path, $width, $height) {
+    if (!file_exists($path)) {
+        // Criar uma imagem placeholder se o arquivo não existir
+        $img = imagecreatetruecolor($width, $height);
+        $bg = imagecolorallocate($img, 200, 200, 200);
+        imagefill($img, 0, 0, $bg);
+        return $img;
+    }
+    
+    $original = imagecreatefrompng($path);
+    $resized = imagecreatetruecolor($width, $height);
+    imagealphablending($resized, false);
+    imagesavealpha($resized, true);
+    imagecopyresampled($resized, $original, 0, 0, 0, 0, 
+                      $width, $height, imagesx($original), imagesy($original));
+    imagedestroy($original);
+    return $resized;
+}
+
+/**
  * Gera um recurso de imagem GD para um banner de futebol
  * @param int $userId ID do usuário
- * @param int $bannerModel Modelo do banner (1, 2 ou 3)
+ * @param int $bannerModel Modelo do banner (1, 2, 3 ou 4)
  * @param int $grupoIndex Índice do grupo de jogos
  * @param array $allJogos Todos os jogos disponíveis
  * @return resource|false Recurso GD da imagem ou false em caso de erro
@@ -344,6 +395,13 @@ function generateFootballBannerResource($userId, $bannerModel, $grupoIndex, $all
             $espacoExtra = 649;
             $height = max(count($grupoJogos) * $heightPorJogo + $padding * 2 + $espacoExtra, 2030);
             return _gerarBannerModel3($userId, $allJogos, $grupoJogos, $width, $height, $padding, $heightPorJogo, $fontLiga);
+            
+        case 4:
+            $width = 800;
+            $heightPorJogo = 140;
+            $espacoExtra = 400;
+            $height = max(count($grupoJogos) * $heightPorJogo + $padding * 2 + $espacoExtra, 1200);
+            return _gerarBannerModel4($userId, $allJogos, $grupoJogos, $width, $height, $padding, $heightPorJogo, $fontLiga);
             
         default:
             return false;
@@ -807,6 +865,220 @@ function _gerarBannerModel3($userId, $jogos, $grupoJogos, $width, $height, $padd
         }
         imagedestroy($logoUsuario);
     }
+    
+    return $im;
+}
+
+/**
+ * Gera banner modelo 4 (gerar_fut_4.php) - Novo tema
+ */
+function _gerarBannerModel4($userId, $jogos, $grupoJogos, $width, $height, $padding, $heightPorJogo, $fontLiga) {
+    // Criar imagem
+    $im = imagecreatetruecolor($width, $height);
+    $preto = imagecolorallocate($im, 0, 0, 0);
+    $branco = imagecolorallocate($im, 255, 255, 255);
+    
+    // Carregar fundo do usuário
+    $fundo = loadUserImage($userId, 'background_banner_4');
+    if ($fundo) {
+        imagecopyresampled($im, $fundo, 0, 0, 0, 0, $width, $height, imagesx($fundo), imagesy($fundo));
+        imagedestroy($fundo);
+    } else {
+        imagefill($im, 0, 0, $branco);
+    }
+    
+    // Cache para imagens estáticas
+    static $fundoJogo = null;
+    
+    if ($fundoJogo === null) {
+        $fundoJogo = loadUserImage($userId, 'card_banner_4');
+        if (!$fundoJogo) {
+            // Fallback para imagem padrão
+            $fundoJogoPath = __DIR__ . '/../imgelementos/fundo_jogo.png';
+            $fundoJogo = file_exists($fundoJogoPath) ? imagecreatefrompng($fundoJogoPath) : false;
+        }
+    }
+    
+    // CONFIGURAÇÕES AJUSTÁVEIS
+    $config = [
+        'espacamento_vertical' => 10,
+        'altura_jogo' => 150,
+        'espaco_cabecalho' => 200,
+        'posicoes' => [
+            'liga' => ['x' => 130, 'y' => 17],
+            'escudo1' => ['x' => 130, 'y' => 55],
+            'escudo2' => ['x' => 625, 'y' => 55],
+            'nome_time1' => ['x' => 188, 'y' => 40],
+            'nome_time2' => ['x' => 608, 'y' => 40],
+            'vs' => ['x' => 370, 'y' => 45],
+            'data' => ['x' => 530, 'y' => 3448],
+            'horario' => ['x' => 365, 'y' => 15],
+            'canais' => ['x' => 290, 'y' => 110],
+            'logo' => ['x' => 20, 'y' => 1, 'largura' => 180],
+            'titulo1' => ['x' => 500, 'y' => 70],
+            'titulo2' => ['x' => 500, 'y' => 110],
+            'data_cabecalho' => ['x' => 300, 'y' => 180]
+        ]
+    ];
+
+    // FONTE ESPECIAL PARA OS TIMES
+    $fonteTimes = __DIR__ . '/../fonts/CalSans-Regular.ttf';
+    if (!file_exists($fonteTimes)) {
+        $fonteTimes = __DIR__ . '/../fonts/RobotoCondensed-Bold.ttf';
+    }
+    $tamanhoFonteTimes = 18;
+
+    $heightPorJogo = $config['altura_jogo'];
+    $espacamentoVertical = $config['espacamento_vertical'];
+    $espacoCabecalho = $config['espaco_cabecalho'];
+    $posicoes = $config['posicoes'];
+
+    // CABEÇALHO
+    $fonteTitulo = __DIR__ . '/../fonts/BebasNeue-Regular.ttf';
+    $fonteData = __DIR__ . '/../fonts/RobotoCondensed-VariableFont_wght.ttf';
+    $corBranco = imagecolorallocate($im, 255, 255, 255);
+
+    // Logo do usuário
+    $logoUsuario = loadUserImage($userId, 'logo_banner_4');
+    if ($logoUsuario) {
+        $logoLarguraDesejada = $posicoes['logo']['largura'];
+        $logoPosX = $posicoes['logo']['x'];
+        $logoPosY = $posicoes['logo']['y'];
+        
+        $logoWidthOriginal = imagesx($logoUsuario);
+        $logoHeightOriginal = imagesy($logoUsuario);
+        $logoHeight = (int)($logoHeightOriginal * ($logoLarguraDesejada / $logoWidthOriginal));
+        
+        $logoRedimensionada = imagecreatetruecolor($logoLarguraDesejada, $logoHeight);
+        imagealphablending($logoRedimensionada, false);
+        imagesavealpha($logoRedimensionada, true);
+        imagecopyresampled($logoRedimensionada, $logoUsuario, 0, 0, 0, 0, 
+                         $logoLarguraDesejada, $logoHeight, 
+                         $logoWidthOriginal, $logoHeightOriginal);
+        
+        imagecopy($im, $logoRedimensionada, $logoPosX, $logoPosY, 
+                 0, 0, $logoLarguraDesejada, $logoHeight);
+        
+        imagedestroy($logoUsuario);
+        imagedestroy($logoRedimensionada);
+    }
+
+    // Título
+    imagettftext($im, 51, 0, $posicoes['titulo1']['x'], $posicoes['titulo1']['y'], 
+                $corBranco, $fonteTitulo, "AGENDA ");
+    imagettftext($im, 36, 0, $posicoes['titulo2']['x'], $posicoes['titulo2']['y'], 
+                $corBranco, $fonteTitulo, "ESPORTIVA");
+    
+    // Data
+    setlocale(LC_TIME, 'pt_BR.utf8', 'pt_BR.UTF-8', 'pt_BR', 'portuguese');
+    $dataHoje = date('Y-m-d');
+    $timestamp = strtotime($dataHoje);
+    $diaSemana = strftime('%A', $timestamp);
+    $linhaData = strtoupper($diaSemana) . ' - ' . strtoupper(strftime('%d/%B', $timestamp));
+    imagettftext($im, 47, 0, $posicoes['data_cabecalho']['x'], $posicoes['data_cabecalho']['y'], 
+                $corBranco, $fonteData, $linhaData);
+
+    // JOGOS
+    $yAtual = $espacoCabecalho;
+    
+    foreach ($grupoJogos as $idx) {
+        if (!isset($jogos[$idx])) continue;
+
+        if ($fundoJogo) {
+            $alturaCard = $heightPorJogo - 10;
+            $larguraCard = $width - $padding * 2;
+            $cardResized = imagecreatetruecolor($larguraCard, $alturaCard);
+            imagealphablending($cardResized, false);
+            imagesavealpha($cardResized, true);
+            imagecopyresampled($cardResized, $fundoJogo, 0, 0, 0, 0, 
+                              $larguraCard, $alturaCard, 
+                              imagesx($fundoJogo), imagesy($fundoJogo));
+            imagecopy($im, $cardResized, $padding, $yAtual, 
+                     0, 0, $larguraCard, $alturaCard);
+            imagedestroy($cardResized);
+        }
+
+        $jogo = $jogos[$idx];
+        $time1 = $jogo['time1'] ?? 'Time 1';
+        $time2 = $jogo['time2'] ?? 'Time 2';
+
+        // Remover termos como sub-20, sub17, u17
+        $time1 = preg_replace('/\b(sub[\s-]?20|sub[\s-]?17|u17)\b/i', '', $time1);
+        $time2 = preg_replace('/\b(sub[\s-]?20|sub[\s-]?17|u17)\b/i', '', $time2);
+        $time1 = trim(preg_replace('/\s+/', ' ', $time1));
+        $time2 = trim(preg_replace('/\s+/', ' ', $time2));
+
+        $liga = $jogo['competicao'] ?? 'Liga';
+        $hora = $jogo['horario'] ?? '';
+        $canais = tratarCanaisTransmissao($jogo['canais'] ?? []);
+        
+        $escudo1_url = LOGO_OVERRIDES[$time1] ?? ($jogo['img_time1_url'] ?? '');
+        $escudo2_url = LOGO_OVERRIDES[$time2] ?? ($jogo['img_time2_url'] ?? '');
+
+        $tamEscudo = 45;
+        $tamVS = 50;
+
+        // Carregar imagens
+        $imgEscudo1 = carregarEscudo($time1, $escudo1_url, $tamEscudo);
+        $imgEscudo2 = carregarEscudo($time2, $escudo2_url, $tamEscudo);
+        
+        // Carregar imagem VS
+        $vsPath = __DIR__ . '/../imgelementos/vs.png';
+        if (file_exists($vsPath)) {
+            $vsImg = carregarImagem($vsPath, $tamVS, $tamVS);
+        } else {
+            // Criar um placeholder para VS se a imagem não existir
+            $vsImg = imagecreatetruecolor($tamVS, $tamVS);
+            $bg = imagecolorallocate($vsImg, 200, 200, 200);
+            imagefill($vsImg, 0, 0, $bg);
+            $textColor = imagecolorallocate($vsImg, 0, 0, 0);
+            imagestring($vsImg, 3, $tamVS/2 - 8, $tamVS/2 - 5, "VS", $textColor);
+        }
+
+        $yTop = $yAtual + ($espacamentoVertical / 2);
+
+        // Elementos do jogo
+        desenharTexto($im, $liga, $posicoes['liga']['x'], $yTop + $posicoes['liga']['y'], 
+                     $branco, 17, 0, $fontLiga);
+
+        // Escudos
+        imagecopy($im, $imgEscudo1, $posicoes['escudo1']['x'], $yTop + $posicoes['escudo1']['y'], 
+                 0, 0, $tamEscudo, $tamEscudo);
+        imagecopy($im, $vsImg, $posicoes['vs']['x'], $yTop + $posicoes['vs']['y'], 
+                 0, 0, $tamVS, $tamVS);
+        imagecopy($im, $imgEscudo2, $posicoes['escudo2']['x'], $yTop + $posicoes['escudo2']['y'], 
+                 0, 0, $tamEscudo, $tamEscudo);
+
+        // Nomes dos times centralizados
+        $nome_time1_y = $yTop + $posicoes['nome_time1']['y'] + ($tamEscudo / 2) + 8;
+        $nome_time2_y = $yTop + $posicoes['nome_time2']['y'] + ($tamEscudo / 2) + 8;
+        desenharTexto($im, $time1, $posicoes['nome_time1']['x'], $nome_time1_y, 
+                     $branco, $tamanhoFonteTimes, 0, $fonteTimes);
+        
+        $bbox2 = imagettfbbox($tamanhoFonteTimes, 0, $fonteTimes, $time2);
+        $larguraTexto2 = $bbox2[2] - $bbox2[0];
+        $posX_nome_time2 = $posicoes['nome_time2']['x'] - $larguraTexto2;
+
+        desenharTexto($im, $time2, $posX_nome_time2, $nome_time2_y, 
+                     $branco, $tamanhoFonteTimes, 0, $fonteTimes);
+
+        // Outros elementos
+        desenharTexto($im, date('d/m'), $posicoes['data']['x'], $yTop + $posicoes['data']['y'], 
+                     $branco, 12, 0, $fontLiga);
+        desenharTexto($im, $hora, $posicoes['horario']['x'], $yTop + $posicoes['horario']['y'], 
+                     $branco, 22, 0, $fontLiga);
+        desenharTexto($im, $canais, $posicoes['canais']['x'], $yTop + $posicoes['canais']['y'], 
+                     $branco, 16, 0, $fontLiga);
+
+        // Limpar memória
+        imagedestroy($imgEscudo1);
+        imagedestroy($imgEscudo2);
+        imagedestroy($vsImg);
+
+        $yAtual += $heightPorJogo + $espacamentoVertical;
+    }
+
+    if ($fundoJogo) imagedestroy($fundoJogo);
     
     return $im;
 }
