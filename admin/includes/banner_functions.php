@@ -922,7 +922,7 @@ function _gerarBannerModel4($userId, $jogos, $grupoJogos, $width, $height, $padd
     ];
 
     // FONTE ESPECIAL PARA OS TIMES
-    $fonteTimes = __DIR__ . '/../fonts/CalSans-Regular.ttf';
+    $fonteTimes = __DIR__ . '/../fonts/AvilockBold.ttf';
     if (!file_exists($fonteTimes)) {
         $fonteTimes = __DIR__ . '/../fonts/RobotoCondensed-Bold.ttf';
     }
@@ -934,8 +934,8 @@ function _gerarBannerModel4($userId, $jogos, $grupoJogos, $width, $height, $padd
     $posicoes = $config['posicoes'];
 
     // CABEÇALHO
-    $fonteTitulo = __DIR__ . '/../fonts/BebasNeue-Regular.ttf';
-    $fonteData = __DIR__ . '/../fonts/RobotoCondensed-VariableFont_wght.ttf';
+    $fonteTitulo = __DIR__ . '/../fonts/AvilockBold.ttf';
+    $fonteData = __DIR__ . '/../fonts/AvilockBold.ttf';
     $corBranco = imagecolorallocate($im, 255, 255, 255);
 
     // Logo do usuário
