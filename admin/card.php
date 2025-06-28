@@ -17,6 +17,7 @@ $card_types = [
     'card_banner_1' => ['name' => 'Card Banner 1', 'fixed_filename' => 'card_banner_1'],
     'card_banner_2' => ['name' => 'Card Banner 2', 'fixed_filename' => 'card_banner_2'],
     'card_banner_3' => ['name' => 'Card Banner 3', 'fixed_filename' => 'card_banner_3'],
+    'card_banner_4' => ['name' => 'Card Banner 4', 'fixed_filename' => 'card_banner_4'],
 ];
 
 $current_card_key = $_GET['tipo'] ?? array_key_first($card_types);

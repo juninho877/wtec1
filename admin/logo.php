@@ -17,6 +17,7 @@ $logo_types = [
     'logo_banner_1' => ['name' => 'Logo Banner 1', 'fixed_filename' => 'logo_banner_1'],
     'logo_banner_2' => ['name' => 'Logo Banner 2', 'fixed_filename' => 'logo_banner_2'],
     'logo_banner_3' => ['name' => 'Logo Banner 3', 'fixed_filename' => 'logo_banner_3'],
+    'logo_banner_4' => ['name' => 'Logo Banner 4', 'fixed_filename' => 'logo_banner_4'],
 ];
 
 $current_logo_key = $_GET['tipo'] ?? array_key_first($logo_types);
@@ -411,6 +412,30 @@ include "includes/header.php";
         margin-top: 0.25rem;
     }
 
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
+    }
+
+    .mt-6 {
+        margin-top: 1.5rem;
+    }
+
+    .mr-2 {
+        margin-right: 0.5rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 0.75rem;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .gap-6 {
+        gap: 1.5rem;
+    }
+
     .border-success-200 {
         border-color: rgba(34, 197, 94, 0.3);
     }
@@ -421,10 +446,6 @@ include "includes/header.php";
 
     .text-success-700 {
         color: var(--success-700);
-    }
-
-    .mt-6 {
-        margin-top: 1.5rem;
     }
 
     .mt-1 {

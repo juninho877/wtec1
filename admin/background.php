@@ -17,6 +17,7 @@ $background_types = [
     'background_banner_1' => ['name' => 'Fundo Banner 1', 'fixed_filename' => 'background_banner_1'],
     'background_banner_2' => ['name' => 'Fundo Banner 2', 'fixed_filename' => 'background_banner_2'],
     'background_banner_3' => ['name' => 'Fundo Banner 3', 'fixed_filename' => 'background_banner_3'],
+    'background_banner_4' => ['name' => 'Fundo Banner 4', 'fixed_filename' => 'background_banner_4'],
 ];
 
 $current_bg_key = $_GET['tipo'] ?? array_key_first($background_types);

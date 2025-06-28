@@ -81,6 +81,7 @@ if (isset($_GET['banner'])) {
         case '1': $geradorScript = 'gerar_fut.php'; break;
         case '2': $geradorScript = 'gerar_fut_2.php'; break;
         case '3': $geradorScript = 'gerar_fut_3.php'; break;
+        case '4': $geradorScript = 'gerar_fut_4.php'; break;
         default:
             echo "<div class='card'><div class='card-body text-center'><p class='text-danger'>Tipo de banner inválido!</p></div></div>";
             include "includes/footer.php";
@@ -1158,7 +1159,7 @@ window.abortAllOperations = abortAllOperations;
     </div>
 <?php else: ?>
     <div class="models-grid">
-        <?php for ($i = 1; $i <= 3; $i++): ?>
+        <?php for ($i = 1; $i <= 4; $i++): ?>
             <div class="model-card group">
                 <div class="model-card-header">
                     <div class="model-info">
@@ -1482,7 +1483,7 @@ window.abortAllOperations = abortAllOperations;
 let modelRetryCount = {};
 const maxModelRetries = 2;
 let modelsLoaded = 0;
-let totalModels = 3;
+let totalModels = 4;
 let modelLoadingAborted = false;
 let activeModelTimeouts = [];
 let activeModelImages = [];
